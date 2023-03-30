@@ -19,7 +19,7 @@ architecture Behavioral of function_unit is
 subtype vector is std_logic_vector(31 downto 0);
 subtype vector_2 is std_logic_vector(32 downto 0);
 
-signal adder_out, condition_out, logic_out, shift_out, mux_out : vector;
+signal adder_out, condition_out, logic_out, shift_out, mux_out, parity_check : vector;
 signal operand1, operand2 : signed(31 downto 0);
 
 --signal nn : unsigned(4 downto 0);
@@ -55,17 +55,26 @@ begin
       -- barell shifter
       shift_out <= vector(shift_left( unsigned(b_bus) , to_integer(unsigned(s & c_in & t)))) or vector(shift_right( unsigned(b_bus) , (32-to_integer(unsigned(s & c_in & t))))); 
                     
-      -- multiplexers
-      mux_out <= shift_out when m(1) = '1' else
-               adder_out when m(0) = '0' else
-               logic_out when m(0) = '1' else
-               (others => 'X');
-      d_out <= mux_out;
+      -- multiplexers & flags & output
       
-        -- flags
-      z <= '1' when mux_out = vector(zeroes) else
-           '0';
-      n <= mux_out(31);
+          
+              mux_out <= shift_out when m(1) = '1' else
+                  adder_out when m(0) = '0' else
+                  logic_out when m(0) = '1' else
+                  (others => 'X');
+              d_out <= mux_out;
+      
+               z <= '1' when mux_out = vector(zeroes) else
+                    '0';
+               n <= mux_out(31);
+               
+      
+              parity_check(0) <= '0';
+              as_pene: for i in 0 to 30 generate
+                  parity_check(i+1) <= parity_check(i) xor mux_out(i);
+                end generate;
+              p <= parity_check(31);
+      
         
       
           
