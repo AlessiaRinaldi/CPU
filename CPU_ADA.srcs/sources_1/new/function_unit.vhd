@@ -70,7 +70,7 @@ begin
                
       
               parity_check(0) <= '0';
-              as_pene: for i in 0 to 30 generate
+              loop_1: for i in 0 to 30 generate
                   parity_check(i+1) <= parity_check(i) xor mux_out(i);
                 end generate;
               p <= parity_check(31);
