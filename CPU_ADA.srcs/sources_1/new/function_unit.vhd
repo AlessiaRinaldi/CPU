@@ -4,14 +4,14 @@ use ieee.NUMERIC_STD.ALL;
 
 
 entity function_unit is
-port(   a_bus      : in std_logic_vector(31 downto 0);
-        b_bus      : in std_logic_vector(31 downto 0);
-        s          : in std_logic_vector(1 downto 0);
-        t          : in std_logic_vector(1 downto 0);
-        c_in       : in std_logic;
-        m          : in std_logic_vector(1 downto 0);
-        c, z, n, p : out std_logic;
-        d_out      : out std_logic_vector(31 downto 0)  
+port(   a_bus         : in std_logic_vector(31 downto 0);
+        b_bus         : in std_logic_vector(31 downto 0);
+        s             : in std_logic_vector(1 downto 0);
+        t             : in std_logic_vector(1 downto 0);
+        c_in          : in std_logic;
+        m             : in std_logic_vector(1 downto 0);
+        c, z, n, p, v : out std_logic;
+        d_out         : out std_logic_vector(31 downto 0)  
         );
 end function_unit;
 
@@ -58,23 +58,25 @@ begin
       -- multiplexers & flags & output
       
           
-              mux_out <= shift_out when m(1) = '1' else
-                  adder_out when m(0) = '0' else
-                  logic_out when m(0) = '1' else
-                  (others => 'X');
-              d_out <= mux_out;
+      mux_out <= shift_out when m(1) = '1' else
+                 adder_out when m(0) = '0' else
+                 logic_out when m(0) = '1' else
+                 (others => 'X');
+      d_out <= mux_out;
       
-               z <= '1' when mux_out = vector(zeroes) else
-                    '0';
-               n <= mux_out(31);
+      z <= '1' when mux_out = vector(zeroes) else
+           '0';
+      n <= mux_out(31);
                
       
-              parity_check(0) <= '0';
-              loop_1: for i in 0 to 30 generate
+      parity_check(0) <= '0';
+      loop_1: for i in 0 to 30 generate
                   parity_check(i+1) <= parity_check(i) xor mux_out(i);
-                end generate;
-              p <= parity_check(31);
+      end generate;
+      p <= parity_check(31);
       
+      v <= '1' when (a_bus(31) = b_bus(31)) and (a_bus(31) = not result(31)) else
+           '0'; 
         
       
           
