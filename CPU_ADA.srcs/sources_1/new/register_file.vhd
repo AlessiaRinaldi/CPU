@@ -1,7 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-
 entity register_file is
     Port ( dcd_in   : in INTEGER range 0 to 31;
            load     : in STD_LOGIC;
