@@ -1,6 +1,5 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 use IEEE.MATH_REAL.ALL;
 
@@ -37,8 +36,17 @@ begin
     
     alu_outb <= alu_outa;
     
-    pc_out <= npc when cond_out = '0' else
-              alu_outa when cond_out = '1' else
-              (others => 'X');
+    process(clka)
+    begin
+        if rising_edge(clka) then
+            if cond_out = '0' then
+                pc_out <= npc;
+            elsif cond_out = '1' then
+                pc_out <= alu_outa;
+            else
+                pc_out <= (others => 'X');
+            end if;
+        end if;
+    end process;
     
 end Behavioral;

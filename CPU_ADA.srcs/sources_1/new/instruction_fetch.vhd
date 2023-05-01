@@ -10,9 +10,9 @@ entity instruction_fetch is
     );
     port ( 
         pc       : in std_logic_vector( depth_enc + 1 downto 0 );
+        clka     : in std_logic;
         npc      : out std_logic_vector( depth_enc + 1 downto 0 );
-        douta    : out std_logic_vector(31 downto 0);
-        clka     : in std_logic
+        douta    : out std_logic_vector(31 downto 0)
          );
 end instruction_fetch;
 
@@ -28,6 +28,11 @@ architecture Behavioral of instruction_fetch is
 begin
     rom: blk_mem_gen_0 port map(clka => clka, addra => pc(depth_enc downto 2), douta => douta);
     
-    npc <= std_logic_vector(unsigned(pc) + 4);
+    process(clka)
+    begin
+        if rising_edge(clka) then
+            npc <= std_logic_vector(unsigned(pc) + 4);
+        end if;
+    end process;
     
 end Behavioral;
