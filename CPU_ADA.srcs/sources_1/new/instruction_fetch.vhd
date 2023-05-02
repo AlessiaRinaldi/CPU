@@ -9,10 +9,10 @@ entity instruction_fetch is
         depth_enc : integer := integer(ceil(log2(real(1024))))
     );
     port ( 
-        pc       : in std_logic_vector( depth_enc + 1 downto 0 );
-        clka     : in std_logic;
-        npc      : out std_logic_vector( depth_enc + 1 downto 0 );
-        douta    : out std_logic_vector(31 downto 0)
+        pc          : in  std_logic_vector( depth_enc + 1 downto 0 );
+        clka        : in  std_logic;
+        npc         : out std_logic_vector( depth_enc + 1 downto 0 );
+        instruction : out std_logic_vector(31 downto 0)
          );
 end instruction_fetch;
 
@@ -26,7 +26,8 @@ architecture Behavioral of instruction_fetch is
     end component blk_mem_gen_0;
     
 begin
-    rom: blk_mem_gen_0 port map(clka => clka, addra => pc(depth_enc downto 2), douta => douta);
+-- DA CHIEDERE: pc come address va passato completo?
+    rom: blk_mem_gen_0 port map(clka => clka, addra => pc(depth_enc downto 2), douta => instruction);
     
     process(clka)
     begin

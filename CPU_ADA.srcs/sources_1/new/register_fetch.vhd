@@ -1,23 +1,47 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 entity register_fetch is
     port(
         instruction : in  std_logic_vector( 31 downto 0 );
         clk         : in  std_logic;
-        a_bus       : out std_logic_vector( 31 downto 0 );
-        b_bus       : out std_logic_vector( 31 downto 0 );
+        load_en     : in  std_logic;
+        rs1         : out std_logic_vector( 31 downto 0 );
+        rs2         : out std_logic_vector( 31 downto 0 );
         imm         : out std_logic_vector( 31 downto 0 )
     );
 end register_fetch;
 
 architecture Behavioral of register_fetch is
-    signal imm_dec : std_logic_vector(31 downto 0);
+    type reg_type is array(0 to 31) of std_logic_vector(31 downto 0);
+    signal registers: reg_type;
 begin
+
+    registers(0) <= (others => '0');
+    
+    
     
     process(clk)
     begin
         if rising_edge(clk) then
+ 
+--          [ Registers output assesment ]
+
+            if instruction(6 downto 0) /= "0110111" and instruction(6 downto 0) /= "0010111" and instruction(6 downto 0) /= "1101111" then
+                rs1 <= registers(to_integer(unsigned(instruction(19 downto 15))));
+            else
+                rs1 <= (others => '0');
+            end if;
+            
+            if instruction(6 downto 0) = "1100011" or instruction(6 downto 0) = "0100011" or instruction(6 downto 0) = "0110011" then
+                rs2 <= registers(to_integer(unsigned(instruction(24 downto 20)))); 
+            else 
+                rs2 <= (others => 'X'); 
+            end if;
+            
+--          [ Immediate / Constant register output assesment ]        
+        
             if instruction(6 downto 0) = "1100011" then
                 imm(31 downto 12) <= (others => instruction(31));
                 imm(12) <= instruction(7);
@@ -38,6 +62,8 @@ begin
                 imm(31 downto 11) <= (others => instruction(31));
                 imm(10 downto 5) <= instruction(30 downto 25);
                 imm(4 downto 0) <= instruction(12 downto 8);
+            else
+                imm <= (others => '0');
             end if;
         end if;
     end process;
