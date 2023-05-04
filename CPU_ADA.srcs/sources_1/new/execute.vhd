@@ -4,14 +4,15 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity execute is
     port(
-        rs1      : in  std_logic_vector(31 downto 0);
-        rs2      : in  std_logic_vector(31 downto 0);
+        rs1        : in  std_logic_vector(31 downto 0);
+        rs2        : in  std_logic_vector(31 downto 0);
         imm        : in  std_logic_vector(31 downto 0);
         npc        : in  std_logic_vector(31 downto 0);
         sel_in_alu : in  std_logic_vector(1 downto 0);
         op_sel     : in  std_logic_vector(2 downto 0);
         comp_sel   : in  std_logic_vector(2 downto 0);
         clka       : in  std_logic;
+        branch     : in  std_logic;
         cond_sel   : in  std_logic;
         log_arith  : in  std_logic;
         alu_out    : out std_logic_vector(31 downto 0);
@@ -107,44 +108,48 @@ begin
             
 --          [ Comparator register output assesment ]
             
-            if comp_sel = "000" then
-                if cp1 = cp2 then
-                    cond_out <= '1';
+            if branch = '0' then
+                cond_out <= '0';
+            elsif branch = '1' then
+                if comp_sel = "000" then
+                    if cp1 = cp2 then
+                        cond_out <= '1';
+                    else
+                        cond_out <= '0';
+                    end if;
+                elsif comp_sel = "001" then
+                    if cp1 /= cp2 then
+                        cond_out <= '1';
+                    else
+                        cond_out <= '0';
+                    end if;
+                elsif comp_sel = "100" then
+                    if cp1 < cp2 then 
+                        cond_out <= '1';
+                    else
+                        cond_out <= '0';
+                    end if;
+                elsif comp_sel = "101" then
+                    if cp1 >= cp2 then
+                        cond_out <= '1';
+                    else 
+                        cond_out <= '0';
+                    end if;
+                elsif comp_sel = "110" then
+                    if unsigned(cp1) < unsigned(cp2) then
+                        cond_out <= '1';
+                    else 
+                        cond_out <= '0';
+                    end if;
+                elsif comp_sel = "111" then
+                    if unsigned(cp1) >= unsigned(cp2) then
+                        cond_out <= '1';
+                    else 
+                        cond_out <= '0';
+                    end if;
                 else
-                    cond_out <= '0';
+                    cond_out <= 'X';
                 end if;
-            elsif comp_sel = "001" then
-                if cp1 /= cp2 then
-                    cond_out <= '1';
-                else
-                    cond_out <= '0';
-                end if;
-            elsif comp_sel = "100" then
-                if cp1 < cp2 then 
-                    cond_out <= '1';
-                else
-                    cond_out <= '0';
-                end if;
-            elsif comp_sel = "101" then
-                if cp1 >= cp2 then
-                    cond_out <= '1';
-                else 
-                    cond_out <= '0';
-                end if;
-            elsif comp_sel = "110" then
-                if unsigned(cp1) < unsigned(cp2) then
-                    cond_out <= '1';
-                else 
-                    cond_out <= '0';
-                end if;
-            elsif comp_sel = "111" then
-                if unsigned(cp1) >= unsigned(cp2) then
-                    cond_out <= '1';
-                else 
-                    cond_out <= '0';
-                end if;
-            else
-                cond_out <= 'X';
             end if;
         end if;
     end process;

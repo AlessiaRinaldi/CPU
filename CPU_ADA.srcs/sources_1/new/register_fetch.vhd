@@ -4,23 +4,33 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity register_fetch is
     port(
-        instruction : in  std_logic_vector( 31 downto 0 );
+        npc_in      : in  std_logic_vector(31 downto 0);
+        write_back  : in  std_logic_vector(31 downto 0);
+        instruction : in  std_logic_vector(31 downto 0);
         clk         : in  std_logic;
         load_en     : in  std_logic;
-        rs1         : out std_logic_vector( 31 downto 0 );
-        rs2         : out std_logic_vector( 31 downto 0 );
-        imm         : out std_logic_vector( 31 downto 0 )
+        rs1         : out std_logic_vector(31 downto 0);
+        rs2         : out std_logic_vector(31 downto 0);
+        imm         : out std_logic_vector(31 downto 0);
+        npc_out     : out std_logic_vector(31 downto 0);
+        sel_in_alu  : out std_logic_vector(1 downto 0);
+        op_sel      : out std_logic_vector(2 downto 0);
+        comp_sel    : out std_logic_vector(2 downto 0);
+        branch      : out std_logic;
+        cond_sel    : out std_logic;
+        log_arith   : out std_logic
     );
 end register_fetch;
 
 architecture Behavioral of register_fetch is
     type reg_type is array(0 to 31) of std_logic_vector(31 downto 0);
     signal registers: reg_type;
+    signal rd: std_logic_vector(4 downto 0);
 begin
 
     registers(0) <= (others => '0');
-    
-    
+     
+    registers(to_integer(unsigned(instruction(11 downto 7)))) <= write_back when load_en = '1';
     
     process(clk)
     begin
